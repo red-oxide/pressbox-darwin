@@ -8,11 +8,11 @@ SPDX-License-Identifier: MPL-2.0
 ## Platforms
 
 - [ ] **watchOS**: a Watch app for playback control and Up Next (started, not
-      merged)
+  merged)
 - [ ] **CarPlay**: an audio app for podcasts and Up Next (request the CarPlay
-      entitlement early; approval takes time)
+  entitlement early; approval takes time)
 - [ ] **tvOS**: an Apple TV app, podcasts and video only, defaulting to an
-      episode's video
+  episode's video
 
 ## Browsing
 
@@ -27,10 +27,10 @@ SPDX-License-Identifier: MPL-2.0
 ## Podcasting 2.0
 
 - [ ] **Person**: `podcast:person` host and guest credits, linking to their
-      other shows
+  other shows
 - [ ] **Funding**: `podcast:funding` support links per show
 - [ ] **Live items**: `podcast:liveItem` live streams, with an "on air now"
-      indicator
+  indicator
 
 ## Value4Value
 
