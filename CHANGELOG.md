@@ -15,6 +15,14 @@ The app is versioned on its own; it talks to pressbox servers through API v1
 
 ## [26.0.0] - Unreleased
 
+The first release.
+
+- Feeds, item lists and an article reader for a pressbox server (SwiftUI), with
+  search and offline reading.
+- Pairing with a short code, and approving other devices (for any user, as an
+  admin).
+- Face ID lock, unread badge with background refresh, and mark as read on scroll
+  (off by default).
 - The feed list and the item lists are grids of tiles rather than lists: as many
   columns as fit, three on iPhone and more on iPad and Mac. A feed's tile shows
   its artwork and unread count; an item's shows the episode's artwork (else the
@@ -171,19 +179,7 @@ The app is versioned on its own; it talks to pressbox servers through API v1
   hides feeds with nothing of that kind. Turning off the only one on switches to
   the other. Mark all as read marks only the kind shown. The badge and the
   widgets still count everything.
-- Needs iOS 27 (was iOS 18), and Xcode 27 to build. CI builds on GitHub's
-  xcode-27 runners, and runs the Linux tests with Swift 6.4, the same compiler.
+- Needs iOS 27, and Xcode 27 to build. CI builds on GitHub's xcode-27 runners,
+  and runs the Linux tests with Swift 6.4, the same compiler.
 
-## [0.1.0] - 2026-11-07
-
-The first release.
-
-- Feeds, item lists and an article reader for a pressbox server (SwiftUI, iOS
-  18+), with search and offline reading.
-- Pairing with a short code, and approving other devices (for any user, as an
-  admin).
-- Face ID lock, unread badge with background refresh, and mark as read on scroll
-  (off by default).
-
-[0.1.0]: https://github.com/red-oxide/pressbox-darwin/releases/tag/v0.1.0
-[26.0.0]: https://github.com/red-oxide/pressbox-darwin/compare/v0.1.0...v26.0.0
+[26.0.0]: https://github.com/red-oxide/pressbox-darwin/releases/tag/v26.0.0
