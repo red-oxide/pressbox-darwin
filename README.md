@@ -18,9 +18,10 @@ clients, such as the `pressbox` terminal reader.
 ## Requirements
 
 - iOS 27 or later on iPhone and iPad, or macOS 27 or later on a Mac.
-- A pressbox server reachable over HTTPS. iOS only allows plain HTTP to local
-  network addresses (the same goes for macOS); `tailscale serve --bg 8470` on
-  the server is the least work, and a reverse proxy with ACME works too.
+- A pressbox server, 26.0.0 or later, reachable over HTTPS. iOS only allows
+  plain HTTP to local network addresses (the same goes for macOS);
+  `tailscale serve --bg 8470` on the server is the least work, and a reverse
+  proxy with ACME works too.
 - To build: a Mac with Xcode 27 or later and
   [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
@@ -156,7 +157,8 @@ versions, `YY.MINOR.PATCH` (26.0.0, then 26.0.1, 26.1.0, and 27.0.0 in January).
 A release sets `MARKETING_VERSION` in `project.yml` to it and
 `CURRENT_PROJECT_VERSION` to the same as digits, with MINOR and PATCH as three
 each (26000000 for 26.0.0, 26001002 for 26.1.2), and is tagged
-`vYY.MINOR.PATCH`.
+`vYY.MINOR.PATCH`. Pushing the tag builds the iOS app and uploads it to
+TestFlight (`.github/workflows/testflight.yml`).
 
 ## License
 
