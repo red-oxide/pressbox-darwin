@@ -56,15 +56,15 @@ The app is versioned on its own; it talks to pressbox servers through API v1
   15 minutes while open to keep the Dock badge current. The app runs in the App
   Sandbox and keeps its token in the data protection keychain. CI builds both
   platforms.
-- Podcasts (needs a pressbox server with podcast support): episodes play with
-  AVPlayer, resume where any client left off (the position syncs every 15
-  seconds and on pause and stop) and are marked read when played to the end. A
-  mini player above every screen's controls opens a full player with scrubbing,
-  10/30-second skips, chapters, speeds that keep the pitch, AirPlay and the
-  transcript, which follows along. Audio plays in the background with Lock
-  Screen and Control Center controls (on Mac, Now Playing and the media keys);
-  video plays inline, full screen or in picture in picture. Opening an episode
-  no longer marks it read.
+- Podcasts (needs pressbox 26.0.0): episodes play with AVPlayer, resume where
+  any client left off (the position syncs every 15 seconds and on pause and
+  stop) and are marked read when played to the end. A mini player above every
+  screen's controls opens a full player with scrubbing, 10/30-second skips,
+  chapters, speeds that keep the pitch, AirPlay and the transcript, which
+  follows along. Audio plays in the background with Lock Screen and Control
+  Center controls (on Mac, Now Playing and the media keys); video plays inline,
+  full screen or in picture in picture. Opening an episode no longer marks it
+  read.
 - Tags: the feed list has a Tags section, one row per tag in the server's config
   with its unread count, showing the items of every feed with that tag. Mark all
   as read works there too.
@@ -94,13 +94,12 @@ The app is versioned on its own; it talks to pressbox servers through API v1
   used to leave it unread). They show in the app at once, wait on disk while the
   server can't be reached, and are sent before the next reload. The offline
   banner says when changes are waiting.
-- Up Next (needs a pressbox server with a queue): episodes to play one after
-  another, kept on the server so every client shares it. Add an episode by
-  swiping its row, from its context menu (Play Next or Play Last), or with the
-  button in its bottom bar; open Up Next from the feed list or the full player
-  to play, reorder or remove. When an episode ends, the first one in Up Next
-  starts, and finished episodes leave it. Changes made offline are sent later,
-  like the rest.
+- Up Next (needs pressbox 26.0.0): episodes to play one after another, kept on
+  the server so every client shares it. Add an episode by swiping its row, from
+  its context menu (Play Next or Play Last), or with the button in its bottom
+  bar; open Up Next from the feed list or the full player to play, reorder or
+  remove. When an episode ends, the first one in Up Next starts, and finished
+  episodes leave it. Changes made offline are sent later, like the rest.
 - Downloads, to play episodes offline: the audio of the 10 newest unread
   episodes downloads automatically, and any episode's audio or video from its
   page. Settings chooses Wi-Fi only (the default) or Wi-Fi and cellular, shows
@@ -167,11 +166,11 @@ The app is versioned on its own; it talks to pressbox servers through API v1
   token, a server error or a server that can't be found. Check Now asks again;
   opening Settings checks too.
 - News and Podcasts toggles in the bottom bar of the feed list, All items and
-  Starred (needs a pressbox server that counts episodes, 26.0): both on shows
-  everything; one on shows only news or only podcast episodes, in every list,
-  with unread counts to match, and hides feeds with nothing of that kind.
-  Turning off the only one on switches to the other. Mark all as read marks only
-  the kind shown. The badge and the widgets still count everything.
+  Starred (needs pressbox 26.0.0): both on shows everything; one on shows only
+  news or only podcast episodes, in every list, with unread counts to match, and
+  hides feeds with nothing of that kind. Turning off the only one on switches to
+  the other. Mark all as read marks only the kind shown. The badge and the
+  widgets still count everything.
 - Needs iOS 27 (was iOS 18), and Xcode 27 to build. CI builds on GitHub's
   xcode-27 runners, and runs the Linux tests with Swift 6.4, the same compiler.
 
@@ -186,5 +185,5 @@ The first release.
 - Face ID lock, unread badge with background refresh, and mark as read on scroll
   (off by default).
 
-[0.1.0]: https://github.com/chrisppy/pressbox-ios/releases/tag/v0.1.0
+[0.1.0]: https://github.com/red-oxide/pressbox-darwin/releases/tag/v0.1.0
 [26.0.0]: https://github.com/red-oxide/pressbox-darwin/compare/v0.1.0...v26.0.0
