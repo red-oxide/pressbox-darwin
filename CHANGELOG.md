@@ -24,14 +24,13 @@ The first release.
 - Face ID lock, unread badge with background refresh, and mark as read on scroll
   (off by default).
 - The feed list and the item lists are grids of tiles rather than lists: as many
-  columns as fit, three on iPhone and more on iPad and Mac. A feed's tile shows
-  its artwork and unread count; an item's shows the episode's artwork (else the
-  feed's), with playing, downloaded and starred on it. The title (and an item's
-  feed and age) is on the tile, over a shade at the foot of the artwork, or in
-  white under a large newspaper or headphones (the News and Podcasts symbols) on
-  an orange tile, over the same shade, when there is none. Touch and hold (or
-  right-click on Mac) an item for Mark as Read, Star and Up Next, which were its
-  swipes.
+  columns as fit, three on iPhone. A feed's tile shows its artwork and unread
+  count; an item's shows the episode's artwork (else the feed's), with playing,
+  downloaded and starred on it. The title (and an item's feed and age) is on the
+  tile, over a shade at the foot of the artwork, or in white under a large
+  newspaper or headphones (the News and Podcasts symbols) on an orange tile,
+  over the same shade, when there is none. Touch and hold an item for Mark as
+  Read, Star and Up Next, which were its swipes.
 - Mark All as Read is in a More (⋯) menu at the top of an item list, rather than
   a button of its own, so it's harder to tap by mistake. It still asks first.
 - Artwork at a plain http address off the local network is asked for over https,
@@ -43,36 +42,28 @@ The first release.
 - A long press on an item offers Mark as Read or Unread and Star first, the same
   actions as its swipes. Mark all as read and Forget this device ask from their
   own buttons, the undo and status banners and the mini player get the scroll
-  edge effect, and Reload and Refresh Feeds on Server are in the iPad's menu
-  bar.
+  edge effect.
 - Up Next, the player and Settings show the system's glass sheet rather than the
   Birdland background, so a half-height sheet lets the screen beneath show
   around it. The bottom toolbar puts Back and Feeds in one glass group and the
   filters in another, and Mark all as read is a plain checkmark.
 - A new app icon: the home plate is filled rather than outlined, and the icon is
   layered (an Icon Composer file), so it picks up Liquid Glass and the dark,
-  clear and tinted Home Screen looks on iPhone, iPad and Mac.
+  clear and tinted Home Screen looks.
 - The logic with no screens is in `Core/`, which also builds as a Swift package:
   `just test` runs its unit tests with `swift test` on Linux or a Mac, and CI
   runs them on Linux too. `just test-app` runs all the tests in the iOS
   simulator, as `just test` did before.
-- A Mac app (macOS 27 or later) from the same target and sources as the iPhone
-  and iPad app, and the repository is renamed pressbox-darwin. On Mac the
-  controls are in the window toolbar, search is in the title bar, Settings is
-  its own window (⌘,), Reload is ⌘R, links open in the default browser, and the
-  lock uses Touch ID. With no background refresh on macOS, the app reloads every
-  15 minutes while open to keep the Dock badge current. The app runs in the App
-  Sandbox and keeps its token in the data protection keychain. CI builds both
-  platforms.
+- The repository is renamed pressbox-darwin, for the iPad and Mac apps to come.
+  For now the app is for iPhone only.
 - Podcasts (needs pressbox 26.0.0): episodes play with AVPlayer, resume where
   any client left off (the position syncs every 15 seconds and on pause and
   stop) and are marked read when played to the end. A mini player above every
   screen's controls opens a full player with scrubbing, 10/30-second skips,
   chapters, speeds that keep the pitch, AirPlay and the transcript, which
   follows along. Audio plays in the background with Lock Screen and Control
-  Center controls (on Mac, Now Playing and the media keys); video plays inline,
-  full screen or in picture in picture. Opening an episode no longer marks it
-  read.
+  Center controls; video plays inline, full screen or in picture in picture.
+  Opening an episode no longer marks it read.
 - Tags: the feed list has a Tags section, one row per tag in the server's config
   with its unread count, showing the items of every feed with that tag. Mark all
   as read works there too.
@@ -123,47 +114,39 @@ The first release.
 - Mark all as read moved from the items' bottom bar to the top, out of easy
   reach, and asks first, saying how many items it will mark.
 - The mini player stays off an episode's page, whose bottom bar already has
-  Play; its More menu opens the full player (Now Playing) instead. On an iPad
-  with the columns side by side, the mini player moves under the item list.
+  Play; its More menu opens the full player (Now Playing) instead.
 - A sleep timer in the full player: 15, 30, 45 or 60 minutes, or the end of the
   episode (which also stops it going on into Up Next).
 - Siri and Shortcuts: play or pause (or play Up Next), skip forward and skip
   back, with phrases that need no setup, and so on the Action button too; and a
-  play/pause control for Control Center on iPhone and iPad.
+  play/pause control for Control Center.
 - An About section at the bottom of Settings: the app's version and build (to
   tell TestFlight builds apart), and links to the source code, the changelog,
   red-oxide.org and the license.
 - The unread badge says when the system is hiding it: with Badges (or all
   notifications) turned off for pressbox in the Settings app, setting the count
   silently did nothing. Settings now shows a warning under the badge switch,
-  with a button to the right page in the Settings app (on Mac, where to find it
-  in System Settings). The check runs on every reload and when Settings opens.
+  with a button to the right page in the Settings app. The check runs on every
+  reload and when Settings opens.
 - Haptics on iPhone for what you do by hand: a tick for read or unread and star
   or unstar (swipes and the article's buttons), a light tap for adding to Up
   Next, and a success buzz for Mark all as read. Items marked read by scrolling
   stay quiet.
 - Undo after marking items read in bulk: a toast at the bottom of the list says
-  how many were marked, with Undo (⌘Z on Mac and on an iPad keyboard) for 6
-  seconds. Mark all as read is done in the app at once and sent to the server
-  when the toast goes (or before anything else loads, or when the app goes to
-  the background), so Undo doesn't need the server. Items marked read by
-  scrolling add up in one toast while you keep scrolling. Mark all as read still
-  asks first.
+  how many were marked, with Undo for 6 seconds. Mark all as read is done in the
+  app at once and sent to the server when the toast goes (or before anything
+  else loads, or when the app goes to the background), so Undo doesn't need the
+  server. Items marked read by scrolling add up in one toast while you keep
+  scrolling. Mark all as read still asks first.
 - Podcast settings: how far the skip buttons jump, back and forward (5 to 60
   seconds; also on the Lock Screen, in Control Center and for Siri and
   Shortcuts), and a default speed. Each podcast keeps its own speed: change it
   in the player and that podcast's episodes play at it from then on; set it back
   to the default to forget it. Speeds are kept on this device.
-- Keyboard shortcuts in the item list, on Mac and on an iPad with a keyboard: j
-  and k for the next and previous item, m for read or unread, s to star or
-  unstar, and space to play or pause (or play the selected episode). They work
-  while the list has the focus (click it, or Tab to it), so typing in the search
-  field isn't affected.
 - Picks up where you left off: when iOS closes pressbox in the background, it
   reopens to the same list and item (swiping it away in the app switcher still
-  starts afresh). On iPhone and iPad, articles and episode pages also reopen
-  where they were scrolled to, at any time; the 200 most recent are kept on the
-  device.
+  starts afresh). Articles and episode pages also reopen where they were
+  scrolled to, at any time; the 200 most recent are kept on the device.
 - Empty lists say why, and what to do: Starred says how to star items; All
   caught up offers Show All Items; an empty list offline, or one that failed to
   load, says so (with Try Again) instead of looking caught up; and a server with

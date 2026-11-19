@@ -15,16 +15,9 @@ project:
 open: project
     open Pressbox.xcodeproj
 
-# Build for the iOS simulator and for macOS without signing, as CI does (macOS)
-build: build-ios build-mac
-
-# Build for the iOS simulator (iPhone and iPad) without signing (macOS)
-build-ios: project
+# Build for the iOS simulator without signing, as CI does (macOS)
+build: project
     xcodebuild build -project Pressbox.xcodeproj -scheme Pressbox -destination 'generic/platform=iOS Simulator' -configuration Debug CODE_SIGNING_ALLOWED=NO
-
-# Build the Mac app without signing (macOS)
-build-mac: project
-    xcodebuild build -project Pressbox.xcodeproj -scheme Pressbox -destination 'generic/platform=macOS' -configuration Debug CODE_SIGNING_ALLOWED=NO
 
 # Run the unit tests of Core/ with SwiftPM: no Xcode or simulator (Linux or macOS)
 test:

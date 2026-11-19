@@ -5,11 +5,10 @@ SPDX-License-Identifier: MPL-2.0
 
 # pressbox-darwin
 
-The iPhone, iPad and Mac app for
-[pressbox](https://github.com/red-oxide/pressbox), a self-hosted feed reader
-whose feeds and users are declared in NixOS. It reads from your pressbox server
-over its HTTP API (`/api/v1`) and shares read and starred state with the other
-clients, such as the `pressbox` terminal reader.
+The iPhone app for [pressbox](https://github.com/red-oxide/pressbox), a
+self-hosted feed reader whose feeds and users are declared in NixOS. It reads
+from your pressbox server over its HTTP API (`/api/v1`) and shares read and
+starred state with the other clients, such as the `pressbox` terminal reader.
 
 > [!NOTE]
 > pressbox-darwin is in its early days. Expect rough edges, and features and
@@ -17,19 +16,20 @@ clients, such as the `pressbox` terminal reader.
 
 ## Requirements
 
-- iOS 27 or later on iPhone and iPad, or macOS 27 or later on a Mac.
+- iOS 27 or later on an iPhone. (iPad and Mac apps are planned; the repository
+  is named for them.)
 - A pressbox server, 26.0.0 or later, reachable over HTTPS. iOS only allows
-  plain HTTP to local network addresses (the same goes for macOS);
-  `tailscale serve --bg 8470` on the server is the least work, and a reverse
-  proxy with ACME works too.
+  plain HTTP to local network addresses; `tailscale serve --bg 8470` on the
+  server is the least work, and a reverse proxy with ACME works too.
 - To build: a Mac with Xcode 27 or later and
   [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ## Building
 
 The repo holds an XcodeGen spec (`project.yml`) and the SwiftUI sources
-(`Pressbox/`); the Xcode project is generated, not committed. One target builds
-for iPhone, iPad and Mac; platform differences are `#if os(macOS)` blocks.
+(`Pressbox/`); the Xcode project is generated, not committed. It builds for
+iPhone only for now. The sources keep their `#if os(macOS)` blocks for the Mac
+app to come, but nothing builds them.
 
 ```sh
 nix develop    # provides xcodegen on macOS, or: brew install xcodegen
@@ -37,11 +37,11 @@ just open      # xcodegen, then open Pressbox.xcodeproj
 ```
 
 Set your team under Signing & Capabilities (or `DEVELOPMENT_TEAM` in
-`project.yml`), pick an iOS device, a simulator or My Mac, and run it. CI builds
-the app for the iOS simulator and for macOS on every change, and runs the unit
-tests (`PressboxTests/`, with Swift Testing) in an iPhone simulator
+`project.yml`), pick an iPhone or an iPhone simulator, and run it. CI builds the
+app for the iOS simulator on every change, and runs the unit tests
+(`PressboxTests/`, with Swift Testing) in an iPhone simulator
 (`.github/workflows/apple.yml`); `just build` and `just test-app` do the same
-locally (`just build-ios` or `just build-mac` for one platform).
+locally.
 
 The logic with no screens (the API client and its JSON, the offline outbox,
 which file a download saves, time formatting) is in `Core/`, which the app
@@ -64,15 +64,10 @@ Settings also has:
 
 - **Approve a device**, for pairing other clients from your phone. Admins can
   approve a device for another user.
-- **Require Face ID** (Touch ID on Mac), which locks the app whenever it goes to
-  the background (on Mac: when it's hidden or its window is minimized).
+- **Require Face ID**, which locks the app whenever it goes to the background.
 - **Mark as read when scrolled past**, off by default: items are marked read as
   they scroll off the top of the list while you scroll (not in search results).
-- **Unread count on app icon**, kept current by background refresh (on Mac, in
-  the Dock, reloaded every 15 minutes while the app is open).
-
-On Mac, Settings is in the app menu (⌘,), Reload is ⌘R and Refresh Feeds on
-Server is ⇧⌘R, and each column's buttons are in the window toolbar.
+- **Unread count on app icon**, kept current by background refresh.
 
 The Server section shows the address, the signed-in user and device, and the
 server's version.
@@ -86,34 +81,33 @@ bottom bar, which also shows the progress and removes it. Lists mark saved
 episodes with a filled arrow. Downloads carry on with the app closed.
 
 Settings › Downloads chooses **Wi-Fi only** (the default) or **Wi-Fi and
-cellular** on iPhone and iPad, shows the space used, and removes everything. A
-download is removed once its episode is finished or read (here or in any other
-client), and an automatic one once it is no longer among the 10 newest unread.
-Streams (HLS) can't be saved, so an episode that only has one plays online.
+cellular**, shows the space used, and removes everything. A download is removed
+once its episode is finished or read (here or in any other client), and an
+automatic one once it is no longer among the 10 newest unread. Streams (HLS)
+can't be saved, so an episode that only has one plays online.
 
 ### Siri, Shortcuts and Control Center
 
 "Play or pause pressbox", "Pause pressbox", "Play Up Next in pressbox", "Skip
 forward in pressbox" and "Skip back in pressbox" work with Siri, without setup.
 The same actions are in the Shortcuts app, so the Action button can run them,
-and Control Center (iPhone and iPad) has a pressbox play/pause control. All of
-them work with the app closed.
+and Control Center has a pressbox play/pause control. All of them work with the
+app closed.
 
 ### Widgets
 
-Two widgets, for the Home Screen and Today view on iPhone and iPad and the
-desktop and Notification Center on Mac:
+Two widgets, for the Home Screen and Today view:
 
 - **Unread**: the unread count (small), or the count and the newest unread items
-  (medium and large); tap an item to open it. On the iPhone and iPad Lock Screen
-  it shows the count, or the count and the newest title.
+  (medium and large); tap an item to open it. On the Lock Screen it shows the
+  count, or the count and the newest title.
 - **Up Next**: the episode playing, or the first in Up Next, with a progress bar
   and a play/pause button that works without opening the app; the medium size
   also lists what plays next.
 
 The widgets show what the app last saw, through an App Group
-(`group.org.red-oxide.pressbox`): they redraw when the app changes something
-and, on iPhone and iPad, after background refreshes.
+(`group.org.red-oxide.pressbox`): they redraw when the app changes something and
+after background refreshes.
 
 ### Podcasts
 
@@ -133,8 +127,8 @@ keeping the pitch), a sleep timer (15 to 60 minutes, or the end of the episode,
 which also stops it going on into Up Next), AirPlay, the chapter list and the
 transcript, which follows along and jumps where you tap. Audio keeps playing in
 the background and shows on the Lock Screen and in Control Center, whose buttons
-and headphones work too (on Mac, in Control Center's Now Playing and on the
-media keys); video plays in the player, full screen or in picture in picture.
+and headphones work too; video plays in the player, full screen or in picture in
+picture.
 
 The position is saved on the server every 15 seconds and when you pause or stop,
 so playback resumes where you left off here or in any other pressbox client.

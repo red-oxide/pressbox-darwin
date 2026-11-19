@@ -7,7 +7,6 @@ options:
   bundleIdPrefix: org.red-oxide
   deploymentTarget:
     iOS: "27.0"
-    macOS: "27.0"
   createIntermediateGroups: true
 settings:
   base:
@@ -26,10 +25,13 @@ settings:
 targets:
   Pressbox:
     type: application
-    # One target for iPhone, iPad and Mac: SwiftUI throughout, with
-    # `#if os(macOS)` where the platforms differ.
+    # iPhone only for now. For iPad, TARGETED_DEVICE_FAMILY goes back to
+    # "1,2"; for Mac, supportedDestinations gets macOS again, with the
+    # macOS deployment target and the sdk=macosx* settings, using
+    # Config/macOS.entitlements and Config/Widgets-macOS.entitlements. The
+    # sources keep their `#if os(macOS)` blocks for it.
     platform: auto
-    supportedDestinations: [iOS, macOS]
+    supportedDestinations: [iOS]
     sources:
       - Pressbox
       # The logic that also builds as a Swift package (Package.swift), so
@@ -48,7 +50,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.red-oxide.pressbox
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         GENERATE_INFOPLIST_FILE: true
         # Pressbox/AppIcon.icon, the layered Icon Composer icon (XcodeGen
         # 2.45.1 or later adds it as a resource).
@@ -57,16 +59,10 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_KEY_CFBundleDisplayName: pressbox
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.news
-        # iPhone and iPad only.
-        "INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphone*]": true
-        "INFOPLIST_KEY_UISupportedInterfaceOrientations[sdk=iphone*]": UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
-        "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad[sdk=iphone*]": UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
-        # The App Group shared with the widgets; on Mac also the App Sandbox
-        # (with outgoing connections, for the server) and the hardened
-        # runtime.
-        "CODE_SIGN_ENTITLEMENTS[sdk=iphone*]": Config/iOS.entitlements
-        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Config/macOS.entitlements
-        "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": true
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        # The App Group shared with the widgets.
+        CODE_SIGN_ENTITLEMENTS: Config/iOS.entitlements
     info:
       path: Pressbox/Info.plist
       properties:
@@ -76,9 +72,9 @@ targets:
           NSAllowsLocalNetworking: true
         NSLocalNetworkUsageDescription: pressbox connects to your feed server on the local network.
         NSFaceIDUsageDescription: pressbox can require Face ID to open your feeds.
-        # Background refresh keeps the unread badge current (iOS; the Mac
-        # app refreshes on a timer while it is open). Audio keeps podcasts
-        # playing (and video in picture in picture) in the background.
+        # Background refresh keeps the unread badge current. Audio keeps
+        # podcasts playing (and video in picture in picture) in the
+        # background.
         UIBackgroundModes: [fetch, audio]
         # pressbox://item/123: the widgets open items.
         CFBundleURLTypes:
@@ -91,7 +87,7 @@ targets:
   PressboxWidgets:
     type: app-extension
     platform: auto
-    supportedDestinations: [iOS, macOS]
+    supportedDestinations: [iOS]
     sources:
       - Widgets
       - Shared
@@ -100,15 +96,12 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.red-oxide.pressbox.widgets
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_CFBundleDisplayName: pressbox
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        # The App Group, to read what the app writes; on Mac also the App
-        # Sandbox, which widget extensions need.
-        "CODE_SIGN_ENTITLEMENTS[sdk=iphone*]": Config/iOS.entitlements
-        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Config/Widgets-macOS.entitlements
-        "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": true
+        # The App Group, to read what the app writes.
+        CODE_SIGN_ENTITLEMENTS: Config/iOS.entitlements
     info:
       path: Widgets/Info.plist
       properties:
@@ -117,7 +110,7 @@ targets:
   PressboxTests:
     type: bundle.unit-test
     platform: auto
-    # Run in the iOS simulator; the app's logic is the same on Mac.
+    # Run in the iOS simulator.
     supportedDestinations: [iOS]
     sources:
       - PressboxTests

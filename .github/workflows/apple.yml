@@ -14,16 +14,9 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        destination: [
-          "generic/platform=iOS Simulator",
-          "generic/platform=macOS",
-        ]
-    name: build (${{ matrix.destination }})
+    name: build (iOS Simulator)
     # GitHub's macOS images are named for their Xcode: the app needs Xcode 27
-    # and the iOS and macOS 27 SDKs.
+    # and the iOS 27 SDK.
     runs-on: xcode-27
 
     steps:
@@ -41,7 +34,7 @@ jobs:
           xcodebuild build \
             -project Pressbox.xcodeproj \
             -scheme Pressbox \
-            -destination '${{ matrix.destination }}' \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             | tee build.log
