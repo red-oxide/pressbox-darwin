@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Chris Palmer <chris@red-oxide.org>
 // SPDX-License-Identifier: MPL-2.0
 
+import BackgroundTasks
 import Foundation
 import UserNotifications
-
-import BackgroundTasks
 
 /// The unread badge, and background refresh (badge, widgets, downloads).
 extension Store {

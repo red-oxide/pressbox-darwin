@@ -1,13 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Chris Palmer <chris@red-oxide.org>
 // SPDX-License-Identifier: MPL-2.0
 
+import BackgroundTasks
 import Foundation
 import LocalAuthentication
 import Observation
-import UserNotifications
-
-import BackgroundTasks
 import UIKit
+import UserNotifications
 
 /// App state shared by every view.
 @MainActor

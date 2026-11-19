@@ -4,7 +4,6 @@
 import AVFoundation
 import MediaPlayer
 import Observation
-
 import UIKit
 
 /// Plays podcast episodes with AVPlayer: in the background, on the Lock

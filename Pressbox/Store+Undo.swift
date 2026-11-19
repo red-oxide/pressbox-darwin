@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MPL-2.0
 
 import Foundation
-
 import UIKit
 
 /// Something just done that the Undo toast can take back.

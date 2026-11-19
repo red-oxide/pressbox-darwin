@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MPL-2.0
 
 import SwiftUI
-
 import UIKit
 
 // Every screen's controls live in a bottom toolbar, within thumb reach,
