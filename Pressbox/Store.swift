@@ -6,10 +6,8 @@ import LocalAuthentication
 import Observation
 import UserNotifications
 
-#if os(iOS)
-  import BackgroundTasks
-  import UIKit
-#endif
+import BackgroundTasks
+import UIKit
 
 /// App state shared by every view.
 @MainActor
@@ -629,7 +627,7 @@ final class Store {
     Cache.clear()
   }
 
-  // MARK: Face ID (Touch ID on Mac) lock
+  // MARK: Face ID lock
 
   func lockIfEnabled() {
     if lockEnabled { isLocked = true }

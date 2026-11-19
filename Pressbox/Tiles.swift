@@ -4,7 +4,7 @@
 import SwiftUI
 
 // Tiles for the feed list and the item lists: a grid that fits as many
-// columns as the width allows: three on iPhone and more on iPad and Mac.
+// columns as the width allows: three on iPhone and more on iPad.
 
 enum Tiles {
   /// Between tiles, across and down.

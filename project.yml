@@ -26,10 +26,7 @@ targets:
   Pressbox:
     type: application
     # iPhone only for now. For iPad, TARGETED_DEVICE_FAMILY goes back to
-    # "1,2"; for Mac, supportedDestinations gets macOS again, with the
-    # macOS deployment target and the sdk=macosx* settings, using
-    # Config/macOS.entitlements and Config/Widgets-macOS.entitlements. The
-    # sources keep their `#if os(macOS)` blocks for it.
+    # "1,2".
     platform: auto
     supportedDestinations: [iOS]
     sources:

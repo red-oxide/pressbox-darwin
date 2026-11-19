@@ -57,7 +57,7 @@ private struct EpisodeSheets: ViewModifier {
         NavigationStack {
           ChapterList(item: item, chapters: playback.isCurrent(item) ? playback.chapters : chapters)
             .navigationTitle("Chapters")
-            .inlineTitle()
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
               ToolbarItem(placement: .confirmationAction) {
                 Button("Done") { showChapters = false }
@@ -65,7 +65,6 @@ private struct EpisodeSheets: ViewModifier {
             }
         }
         .presentationDetents([.medium, .large])
-        .macSheetSize(width: 420, height: 480)
         .task {
           if chapters.isEmpty { chapters = await store.chapters(for: item) }
         }
@@ -79,7 +78,6 @@ private struct EpisodeSheets: ViewModifier {
               }
             }
         }
-        .macSheetSize(width: 480, height: 600)
       }
       .onChange(of: item.id) { chapters = [] }
   }

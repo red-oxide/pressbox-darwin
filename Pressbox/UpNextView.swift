@@ -4,7 +4,7 @@
 import SwiftUI
 
 /// The episodes to play next, in order: tap one to play it, drag to
-/// reorder, swipe (or Delete on Mac) to remove. When an episode ends, the
+/// reorder, swipe to remove. When an episode ends, the
 /// first one here starts.
 struct UpNextView: View {
   @Environment(Store.self) private var store
@@ -52,19 +52,16 @@ struct UpNextView: View {
         }
       }
       .navigationTitle("Up Next")
-      .inlineTitle()
+      .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        #if os(iOS)
-          ToolbarItem(placement: .cancellationAction) {
-            EditButton().disabled(store.queue.isEmpty)
-          }
-        #endif
+        ToolbarItem(placement: .cancellationAction) {
+          EditButton().disabled(store.queue.isEmpty)
+        }
         ToolbarItem(placement: .confirmationAction) {
           Button("Done") { dismiss() }
         }
       }
     }
     .presentationDetents([.medium, .large])
-    .macSheetSize(width: 420, height: 480)
   }
 }

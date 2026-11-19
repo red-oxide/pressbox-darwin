@@ -67,8 +67,7 @@ struct ItemListView: View {
         }
         .padding()
       }
-      // So j, k and the rest reach it on Mac, and on iPad with a keyboard, as
-      // they did a list.
+      // So j, k and the rest reach it with a keyboard, as they did a list.
       .focusable()
       .focusEffectDisabled()
       .onKeyPress(characters: Self.shortcutKeys, phases: .down) { press in
@@ -78,9 +77,7 @@ struct ItemListView: View {
     .themedScreen()
     .onScrollPhaseChange { _, phase in isScrolling = phase.isScrolling }
     .navigationTitle(store.source.map(store.title(for:)) ?? "")
-    #if os(iOS)
-      .navigationBarTitleDisplayMode(.inline)
-    #endif
+    .navigationBarTitleDisplayMode(.inline)
     .searchable(text: $query, prompt: "Search titles and text")
     .onSubmit(of: .search) {
       Task { await store.setSearch(query) }
@@ -218,15 +215,11 @@ extension ItemListView {
     }
   }
 
-  #if os(macOS)
-    private static let starHint = "Star an item from its toolbar to keep it here."
-  #else
-    private static let starHint =
-      "Touch and hold an item and choose Star, or use Star on its page, to keep it here."
-  #endif
+  private static let starHint =
+    "Touch and hold an item and choose Star, or use Star on its page, to keep it here."
 
-  /// Keys that act on the list when it has the keyboard focus (Mac, or an
-  /// iPad with a keyboard). Typing in the search field doesn't reach them.
+  /// Keys that act on the list when it has the keyboard focus, with a
+  /// keyboard. Typing in the search field doesn't reach them.
   private static let shortcutKeys = CharacterSet(charactersIn: "jkms ")
 
   /// j and k: the next and previous item; m: read or unread; s: star or
@@ -289,7 +282,7 @@ private struct UndoToast: View {
       Text(undoable.message)
       Button("Undo") { Task { await store.undo() } }
         .bold()
-        // ⌘Z on Mac, and on iPad with a keyboard.
+        // ⌘Z, with a keyboard.
         .keyboardShortcut("z")
     }
     .font(.footnote)

@@ -11,7 +11,7 @@ import Testing
 // API's JSON, and time formatting.
 //
 // Two ways to run them: `just test` builds Core/ as a Swift package (Linux or
-// Mac, no Xcode), and `just test-app` runs them in the iOS simulator.
+// macOS, no Xcode), and `just test-app` runs them in the iOS simulator.
 
 /// An item decoded the way the API client decodes one.
 private func item(

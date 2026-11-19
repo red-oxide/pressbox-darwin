@@ -8,35 +8,23 @@ struct PressboxApp: App {
   @State private var store = Store()
 
   var body: some Scene {
-    #if os(macOS)
-      WindowGroup {
-        ContentView()
-          .environment(store)
-      }
-      .commands { FeedCommands(store: store) }
-      Settings {
-        SettingsView()
-          .environment(store)
-      }
-    #else
-      WindowGroup {
-        ContentView()
-          .environment(store)
-      }
-      // The menu bar on iPad.
-      .commands { FeedCommands(store: store) }
-      .backgroundTask(.appRefresh(Store.refreshTaskID)) {
-        await Store.backgroundRefresh()
-      }
-      // Episode downloads that finished while the app was away.
-      .backgroundTask(.urlSession(Downloads.sessionID)) {
-        await Downloads.shared.handleBackgroundEvents()
-      }
-    #endif
+    WindowGroup {
+      ContentView()
+        .environment(store)
+    }
+    // The menu bar on iPad.
+    .commands { FeedCommands(store: store) }
+    .backgroundTask(.appRefresh(Store.refreshTaskID)) {
+      await Store.backgroundRefresh()
+    }
+    // Episode downloads that finished while the app was away.
+    .backgroundTask(.urlSession(Downloads.sessionID)) {
+      await Downloads.shared.handleBackgroundEvents()
+    }
   }
 }
 
-/// Menu commands, in the Mac's and the iPad's menu bar, for what
+/// Menu commands, in the iPad's menu bar, for what
 /// pull-to-refresh and the toolbars do on iPhone.
 struct FeedCommands: Commands {
   let store: Store
@@ -73,17 +61,12 @@ struct ContentView: View {
   /// and going back (Back, or swiping from the edge) clears it.
   @State private var compactColumn: NavigationSplitViewColumn = .sidebar
 
-  #if os(iOS)
-    @Environment(\.horizontalSizeClass) private var sizeClass
+  @Environment(\.horizontalSizeClass) private var sizeClass
 
-    /// The split view's columns are stacked, one screen at a time, so each
-    /// screen gets Back (and Home) in its bottom toolbar. Clearing a column's
-    /// selection pops back to it.
-    private var stacked: Bool { sizeClass == .compact }
-  #else
-    /// A Mac window always shows the columns side by side.
-    private let stacked = false
-  #endif
+  /// The split view's columns are stacked, one screen at a time, so each
+  /// screen gets Back (and Home) in its bottom toolbar. Clearing a column's
+  /// selection pops back to it.
+  private var stacked: Bool { sizeClass == .compact }
 
   /// The deepest column with something selected to show.
   private var selectedColumn: NavigationSplitViewColumn {
@@ -126,19 +109,9 @@ struct ContentView: View {
         ContentUnavailableView("No item selected", systemImage: "doc.text")
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .themedScreen()
-          #if os(iOS)
-            .miniPlayerAbove()
-          #endif
+          .miniPlayerAbove()
       }
     }
-    #if os(macOS)
-      // The episode playing, along the bottom of the window. On iPhone and
-      // iPad each screen has it above its bottom toolbar instead (see
-      // `bottomControls`).
-      .safeAreaBar(edge: .bottom, spacing: 0) {
-        MiniPlayer()
-      }
-    #endif
     .settings(isPresented: $showSettings)
     .sensoryFeedback(trigger: store.feedback) { _, new in new?.sensory }
     // pressbox://item/123, from the widgets.
@@ -192,16 +165,6 @@ struct ContentView: View {
         break
       }
     }
-    #if os(macOS)
-      // No background refresh on Mac: reload now and then while it's open,
-      // which also keeps the Dock badge current.
-      .task {
-        while !Task.isCancelled {
-          try? await Task.sleep(for: .seconds(15 * 60))
-          if store.isConfigured && !store.isLocked { await store.reload() }
-        }
-      }
-    #endif
   }
 }
 
@@ -222,7 +185,7 @@ extension ContentView {
 }
 
 extension View {
-  /// Settings: a sheet on iPhone and iPad, the Settings window (⌘,) on Mac.
+  /// Settings, as a sheet.
   fileprivate func settings(isPresented: Binding<Bool>) -> some View {
     modifier(SettingsPresentation(isPresented: isPresented))
   }
@@ -230,22 +193,11 @@ extension View {
 
 private struct SettingsPresentation: ViewModifier {
   @Binding var isPresented: Bool
-  #if os(macOS)
-    @Environment(\.openSettings) private var openSettings
-  #endif
 
   func body(content: Content) -> some View {
-    #if os(macOS)
-      content.onChange(of: isPresented) { _, show in
-        guard show else { return }
-        isPresented = false
-        openSettings()
-      }
-    #else
-      content.sheet(isPresented: $isPresented) {
-        SettingsView()
-      }
-    #endif
+    content.sheet(isPresented: $isPresented) {
+      SettingsView()
+    }
   }
 }
 

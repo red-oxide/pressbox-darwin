@@ -3,9 +3,7 @@
 
 import Foundation
 
-#if os(iOS)
-  import UIKit
-#endif
+import UIKit
 
 /// Something just done that the Undo toast can take back.
 struct Undoable: Identifiable {
@@ -83,21 +81,17 @@ extension Store {
   /// Going to the background, where the toast won't be seen: what it offers
   /// stands now. Mark all as read is sent while iOS still lets the app run.
   func dismissUndoForBackground() {
-    #if os(iOS)
-      guard pendingMarkAll != nil else {
-        dismissUndo()
-        return
-      }
-      hideUndo()
-      scrolledRead = []
-      let task = UIApplication.shared.beginBackgroundTask(withName: "Mark all as read")
-      Task {
-        await commitMarkAll(thenReload: false)
-        UIApplication.shared.endBackgroundTask(task)
-      }
-    #else
+    guard pendingMarkAll != nil else {
       dismissUndo()
-    #endif
+      return
+    }
+    hideUndo()
+    scrolledRead = []
+    let task = UIApplication.shared.beginBackgroundTask(withName: "Mark all as read")
+    Task {
+      await commitMarkAll(thenReload: false)
+      UIApplication.shared.endBackgroundTask(task)
+    }
   }
 
   /// Marks an item read that scrolled off the top of the list, offering

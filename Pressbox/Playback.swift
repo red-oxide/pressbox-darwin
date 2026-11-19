@@ -5,17 +5,11 @@ import AVFoundation
 import MediaPlayer
 import Observation
 
-#if os(macOS)
-  import AppKit
-  private typealias PlatformImage = NSImage
-#else
-  import UIKit
-  private typealias PlatformImage = UIImage
-#endif
+import UIKit
 
 /// Plays podcast episodes with AVPlayer: in the background, on the Lock
-/// Screen and Control Center (Now Playing; on Mac, Control Center and the
-/// media keys), over AirPlay, and video in picture in picture. The position is saved on the server as it plays, so
+/// Screen and in Control Center (Now Playing), over AirPlay, and video in
+/// picture in picture. The position is saved on the server as it plays, so
 /// any client resumes where this one stopped.
 @MainActor
 @Observable
@@ -118,33 +112,29 @@ final class Playback {
     feedRates = (defaults.dictionary(forKey: "feedRates") as? [String: Float]) ?? [:]
     rate = defaultRate
     setUpRemoteCommands()
-    #if os(iOS)
-      observeInterruptions()
-    #endif
+    observeInterruptions()
   }
 
-  #if os(iOS)
-    /// A call or another app's audio pauses the episode; it resumes after if
-    /// iOS says so.
-    private func observeInterruptions() {
-      interruptionObserver = NotificationCenter.default.addObserver(
-        forName: AVAudioSession.interruptionNotification, object: nil, queue: .main
-      ) { [weak self] note in
-        let options = (note.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt)
-          .map(AVAudioSession.InterruptionOptions.init(rawValue:))
-        let type = (note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt)
-          .flatMap(AVAudioSession.InterruptionType.init(rawValue:))
-        MainActor.assumeIsolated {
-          guard let self, self.item != nil else { return }
-          switch type {
-          case .began: self.isPlaying = false
-          case .ended where options?.contains(.shouldResume) ?? false: self.resume()
-          default: break
-          }
+  /// A call or another app's audio pauses the episode; it resumes after if
+  /// iOS says so.
+  private func observeInterruptions() {
+    interruptionObserver = NotificationCenter.default.addObserver(
+      forName: AVAudioSession.interruptionNotification, object: nil, queue: .main
+    ) { [weak self] note in
+      let options = (note.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt)
+        .map(AVAudioSession.InterruptionOptions.init(rawValue:))
+      let type = (note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt)
+        .flatMap(AVAudioSession.InterruptionType.init(rawValue:))
+      MainActor.assumeIsolated {
+        guard let self, self.item != nil else { return }
+        switch type {
+        case .began: self.isPlaying = false
+        case .ended where options?.contains(.shouldResume) ?? false: self.resume()
+        default: break
         }
       }
     }
-  #endif
+  }
 
   private static func skipChoice(_ seconds: Int, else fallback: Double) -> Double {
     skipChoices.contains(seconds) ? Double(seconds) : fallback
@@ -183,17 +173,15 @@ final class Playback {
     // Played to the end before: from the top.
     if let d = media.duration, start >= Double(d) - Self.nearEnd { start = 0 }
 
-    #if os(iOS)
-      do {
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(
-          .playback, mode: video ? .moviePlayback : .spokenAudio,
-          policy: video ? .default : .longFormAudio)
-        try session.setActive(true)
-      } catch {
-        errorMessage = error.localizedDescription
-      }
-    #endif
+    do {
+      let session = AVAudioSession.sharedInstance()
+      try session.setCategory(
+        .playback, mode: video ? .moviePlayback : .spokenAudio,
+        policy: video ? .default : .longFormAudio)
+      try session.setActive(true)
+    } catch {
+      errorMessage = error.localizedDescription
+    }
 
     item = episode
     isVideo = video
@@ -390,12 +378,10 @@ final class Playback {
     artwork = nil
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     MPNowPlayingInfoCenter.default().playbackState = .stopped
-    #if os(iOS)
-      if deactivate {
-        try? AVAudioSession.sharedInstance().setActive(
-          false, options: .notifyOthersOnDeactivation)
-      }
-    #endif
+    if deactivate {
+      try? AVAudioSession.sharedInstance().setActive(
+        false, options: .notifyOthersOnDeactivation)
+    }
   }
 
   private func tick(_ time: CMTime) {
@@ -445,7 +431,7 @@ final class Playback {
     guard let url = URL(artwork: image) else { return }
     Task {
       guard let response = try? await URLSession.shared.data(from: url),
-        let picture = PlatformImage(data: response.0), self.item?.id == item.id
+        let picture = UIImage(data: response.0), self.item?.id == item.id
       else { return }
       artwork = MPMediaItemArtwork(boundsSize: picture.size) { _ in picture }
       updateNowPlaying()

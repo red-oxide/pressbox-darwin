@@ -72,19 +72,13 @@ struct SettingsView: View {
       }
       .themedSheet()
       .navigationTitle("Settings")
-      #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-          ToolbarItem(placement: .confirmationAction) {
-            Button("Done") { dismiss() }
-            .disabled(!store.isConfigured)
-          }
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .confirmationAction) {
+          Button("Done") { dismiss() }
+          .disabled(!store.isConfigured)
         }
-      #else
-        // The Settings window: closing it is Done.
-        .formStyle(.grouped)
-        .frame(minWidth: 460, idealWidth: 520, minHeight: 480)
-      #endif
+      }
       .onAppear { server = store.server }
       .task {
         await store.checkBadgeAllowed()
@@ -271,26 +265,18 @@ extension SettingsView {
   /// The badge is on here but off in the system's settings, so it doesn't
   /// show: say so, with the way there.
   @ViewBuilder fileprivate var badgeBlocked: some View {
-    #if os(iOS)
-      VStack(alignment: .leading, spacing: 8) {
-        Label(
-          "Badges are off for pressbox in the Settings app, so the count doesn't show.",
-          systemImage: "exclamationmark.triangle.fill"
-        )
-        .foregroundStyle(Theme.error)
-        Button("Turn On Badges in Settings") {
-          if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
-            openURL(url)
-          }
-        }
-      }
-    #else
+    VStack(alignment: .leading, spacing: 8) {
       Label(
-        "Badges are off for pressbox in System Settings › Notifications, so the count doesn't show.",
+        "Badges are off for pressbox in the Settings app, so the count doesn't show.",
         systemImage: "exclamationmark.triangle.fill"
       )
       .foregroundStyle(Theme.error)
-    #endif
+      Button("Turn On Badges in Settings") {
+        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+          openURL(url)
+        }
+      }
+    }
   }
 
   /// How far the skip buttons jump, and the speed for podcasts without
@@ -322,12 +308,10 @@ extension SettingsView {
     @Bindable var downloads = Downloads.shared
     Section {
       Toggle("Download New Episodes", isOn: $downloads.automatic)
-      #if os(iOS)
-        Picker("Download Over", selection: $downloads.cellular) {
-          Text("Wi-Fi Only").tag(false)
-          Text("Wi-Fi and Cellular").tag(true)
-        }
-      #endif
+      Picker("Download Over", selection: $downloads.cellular) {
+        Text("Wi-Fi Only").tag(false)
+        Text("Wi-Fi and Cellular").tag(true)
+      }
       LabeledContent(
         "Saved",
         value: downloads.saved.isEmpty
@@ -375,59 +359,36 @@ extension SettingsView {
   }
 
   fileprivate static var defaultDeviceName: String {
-    #if os(macOS)
-      Host.current().localizedName ?? "Mac"
-    #else
-      UIDevice.current.name
-    #endif
+    UIDevice.current.name
   }
 
-  #if os(macOS)
-    fileprivate static let lockLabel = "Require Touch ID"
-    fileprivate static let optionsFooter =
-      "Scrolled past means off the top of the list while you scroll. The Dock badge is updated every 15 minutes while pressbox is open."
-  #else
-    fileprivate static let lockLabel = "Require Face ID"
-    fileprivate static let optionsFooter =
-      "Scrolled past means off the top of the list while you scroll. The badge is updated in the background from time to time; iOS decides how often."
-  #endif
+  fileprivate static let lockLabel = "Require Face ID"
+  fileprivate static let optionsFooter =
+    "Scrolled past means off the top of the list while you scroll. The badge is updated in the background from time to time; iOS decides how often."
 }
 
-// Keyboard hints for the text fields. The Mac has no on-screen keyboard or
-// auto-capitalization, so there they only turn off autocorrection.
+// Keyboard hints for the text fields.
 extension View {
   /// A server address.
   fileprivate func urlEntry() -> some View {
-    #if os(iOS)
-      self
-        .keyboardType(.URL)
-        .textContentType(.URL)
-        .textInputAutocapitalization(.never)
-        .autocorrectionDisabled()
-    #else
-      self.autocorrectionDisabled()
-    #endif
+    self
+      .keyboardType(.URL)
+      .textContentType(.URL)
+      .textInputAutocapitalization(.never)
+      .autocorrectionDisabled()
   }
 
   /// A token or user name, typed as is.
   fileprivate func plainEntry() -> some View {
-    #if os(iOS)
-      self
-        .textInputAutocapitalization(.never)
-        .autocorrectionDisabled()
-    #else
-      self.autocorrectionDisabled()
-    #endif
+    self
+      .textInputAutocapitalization(.never)
+      .autocorrectionDisabled()
   }
 
   /// A pairing code, in capitals.
   fileprivate func codeEntry() -> some View {
-    #if os(iOS)
-      self
-        .textInputAutocapitalization(.characters)
-        .autocorrectionDisabled()
-    #else
-      self.autocorrectionDisabled()
-    #endif
+    self
+      .textInputAutocapitalization(.characters)
+      .autocorrectionDisabled()
   }
 }

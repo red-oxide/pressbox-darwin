@@ -19,11 +19,6 @@ enum Keychain {
       kSecAttrService as String: service,
       kSecAttrAccount as String: account,
     ]
-    #if os(macOS)
-      // The same keychain iOS uses, with the same accessibility rules,
-      // rather than the older file-based macOS keychain.
-      query[kSecUseDataProtectionKeychain as String] = true
-    #endif
     return query
   }
 

@@ -3,13 +3,10 @@
 
 import SwiftUI
 
-#if os(iOS)
-  import UIKit
-#endif
+import UIKit
 
-// On iPhone and iPad every screen's controls live in a bottom toolbar, within
-// thumb reach, including Back and Home where the navigation bar would have
-// them. On Mac they go in the window toolbar, above their column.
+// Every screen's controls live in a bottom toolbar, within thumb reach,
+// including Back and Home where the navigation bar would have them.
 
 /// Leaving a screen from its bottom toolbar. Only set where the split view's
 /// columns are stacked (iPhone, or a narrow iPad window); side by side,
@@ -52,46 +49,29 @@ private struct BottomControls<Buttons: View>: ViewModifier {
   let buttons: Buttons
 
   @ViewBuilder func body(content: Content) -> some View {
-    #if os(macOS)
-      // Columns are always side by side on Mac, so there is no Back or Home,
-      // and `.searchable` puts its field in the toolbar by itself.
-      content
-        .toolbar {
-          if showsButtons {
-            ToolbarItemGroup(placement: .primaryAction) { buttons }
-          }
+    // Inside the screen, so the mini player sits above its toolbar
+    // rather than over it.
+    let screen = content.navigationBarBackButtonHidden(navigation != nil)
+      .miniPlayerAbove(showsMiniPlayer)
+    screen
+      .toolbar {
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+        if navigation != nil {
+          ToolbarItemGroup(placement: .bottomBar) { navigationButtons }
         }
-    #else
-      iOSBody(content: content)
-    #endif
+        if navigation != nil && showsButtons {
+          ToolbarSpacer(.fixed, placement: .bottomBar)
+        }
+        if showsButtons {
+          ToolbarItemGroup(placement: .bottomBar) { buttons }
+        }
+        if search {
+          DefaultToolbarItem(kind: .search, placement: .bottomBar)
+        }
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+      }
+      .searchToolbarBehavior(.minimize)
   }
-
-  #if os(iOS)
-    @ViewBuilder private func iOSBody(content: Content) -> some View {
-      // Inside the screen, so the mini player sits above its toolbar
-      // rather than over it.
-      let screen = content.navigationBarBackButtonHidden(navigation != nil)
-        .miniPlayerAbove(showsMiniPlayer)
-      screen
-        .toolbar {
-          ToolbarSpacer(.flexible, placement: .bottomBar)
-          if navigation != nil {
-            ToolbarItemGroup(placement: .bottomBar) { navigationButtons }
-          }
-          if navigation != nil && showsButtons {
-            ToolbarSpacer(.fixed, placement: .bottomBar)
-          }
-          if showsButtons {
-            ToolbarItemGroup(placement: .bottomBar) { buttons }
-          }
-          if search {
-            DefaultToolbarItem(kind: .search, placement: .bottomBar)
-          }
-          ToolbarSpacer(.flexible, placement: .bottomBar)
-        }
-        .searchToolbarBehavior(.minimize)
-    }
-  #endif
 
   @ViewBuilder private var navigationButtons: some View {
     if let navigation {
@@ -103,29 +83,27 @@ private struct BottomControls<Buttons: View>: ViewModifier {
   }
 }
 
-#if os(iOS)
-  extension View {
-    /// The episode playing, along the bottom of the screen, above its
-    /// toolbar.
-    @ViewBuilder func miniPlayerAbove(_ shown: Bool = true) -> some View {
-      if shown {
-        safeAreaBar(edge: .bottom, spacing: 0) { MiniPlayer() }
-      } else {
-        self
-      }
+extension View {
+  /// The episode playing, along the bottom of the screen, above its
+  /// toolbar.
+  @ViewBuilder func miniPlayerAbove(_ shown: Bool = true) -> some View {
+    if shown {
+      safeAreaBar(edge: .bottom, spacing: 0) { MiniPlayer() }
+    } else {
+      self
     }
   }
+}
 
-  /// Keeps swipe-from-the-edge going back on screens whose navigation-bar Back
-  /// button is hidden, which otherwise turns the gesture off.
-  extension UINavigationController: @retroactive UIGestureRecognizerDelegate {
-    override open func viewDidLoad() {
-      super.viewDidLoad()
-      interactivePopGestureRecognizer?.delegate = self
-    }
-
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-      viewControllers.count > 1
-    }
+/// Keeps swipe-from-the-edge going back on screens whose navigation-bar Back
+/// button is hidden, which otherwise turns the gesture off.
+extension UINavigationController: @retroactive UIGestureRecognizerDelegate {
+  override open func viewDidLoad() {
+    super.viewDidLoad()
+    interactivePopGestureRecognizer?.delegate = self
   }
-#endif
+
+  public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+    viewControllers.count > 1
+  }
+}

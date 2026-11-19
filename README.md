@@ -28,8 +28,7 @@ starred state with the other clients, such as the `pressbox` terminal reader.
 
 The repo holds an XcodeGen spec (`project.yml`) and the SwiftUI sources
 (`Pressbox/`); the Xcode project is generated, not committed. It builds for
-iPhone only for now. The sources keep their `#if os(macOS)` blocks for the Mac
-app to come, but nothing builds them.
+iPhone only for now.
 
 ```sh
 nix develop    # provides xcodegen on macOS, or: brew install xcodegen

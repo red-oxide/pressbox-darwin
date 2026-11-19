@@ -13,27 +13,23 @@ struct PressboxWidgets: WidgetBundle {
   var body: some Widget {
     UnreadWidget()
     UpNextWidget()
-    #if os(iOS)
-      PlaybackControl()
-    #endif
+    PlaybackControl()
   }
 }
 
-#if os(iOS)
-  /// Play or pause in Control Center (and on the Lock Screen, or the Action
-  /// button): what plays, or the first in Up Next.
-  struct PlaybackControl: ControlWidget {
-    var body: some ControlWidgetConfiguration {
-      StaticControlConfiguration(kind: "org.red-oxide.pressbox.playback") {
-        ControlWidgetButton(action: TogglePlaybackIntent()) {
-          Label("Play or Pause", systemImage: "playpause.fill")
-        }
+/// Play or pause in Control Center (and on the Lock Screen, or the Action
+/// button): what plays, or the first in Up Next.
+struct PlaybackControl: ControlWidget {
+  var body: some ControlWidgetConfiguration {
+    StaticControlConfiguration(kind: "org.red-oxide.pressbox.playback") {
+      ControlWidgetButton(action: TogglePlaybackIntent()) {
+        Label("Play or Pause", systemImage: "playpause.fill")
       }
-      .displayName("pressbox")
-      .description("Plays or pauses the episode, or plays the first in Up Next.")
     }
+    .displayName("pressbox")
+    .description("Plays or pauses the episode, or plays the first in Up Next.")
   }
-#endif
+}
 
 struct SnapshotEntry: TimelineEntry {
   let date: Date
@@ -73,13 +69,9 @@ struct UnreadWidget: Widget {
     .supportedFamilies(Self.families)
   }
 
-  #if os(iOS)
-    static let families: [WidgetFamily] = [
-      .systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular,
-    ]
-  #else
-    static let families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge]
-  #endif
+  static let families: [WidgetFamily] = [
+    .systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular,
+  ]
 }
 
 struct UnreadView: View {
@@ -100,31 +92,25 @@ struct UnreadView: View {
 
   /// On the Lock Screen (iPhone and iPad).
   private var isAccessory: Bool {
-    #if os(iOS)
-      family == .accessoryCircular || family == .accessoryRectangular
-    #else
-      false
-    #endif
+    family == .accessoryCircular || family == .accessoryRectangular
   }
 
   @ViewBuilder private var accessory: some View {
-    #if os(iOS)
-      if family == .accessoryCircular {
-        VStack(spacing: 0) {
-          Text(snapshot.unread, format: .number).font(.title2.weight(.semibold))
-          Text("unread").font(.caption2)
-        }
-        .widgetAccentable()
-      } else {
-        VStack(alignment: .leading) {
-          Text("\(snapshot.unread) unread").font(.headline).widgetAccentable()
-          if let first = snapshot.latest.first {
-            Text(first.title).font(.caption).lineLimit(2)
-          }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    if family == .accessoryCircular {
+      VStack(spacing: 0) {
+        Text(snapshot.unread, format: .number).font(.title2.weight(.semibold))
+        Text("unread").font(.caption2)
       }
-    #endif
+      .widgetAccentable()
+    } else {
+      VStack(alignment: .leading) {
+        Text("\(snapshot.unread) unread").font(.headline).widgetAccentable()
+        if let first = snapshot.latest.first {
+          Text(first.title).font(.caption).lineLimit(2)
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
   }
 
   private var small: some View {

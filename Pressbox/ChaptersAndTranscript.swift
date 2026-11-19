@@ -89,7 +89,7 @@ struct TranscriptView: View {
       }
     }
     .navigationTitle("Transcript")
-    .inlineTitle()
+    .navigationBarTitleDisplayMode(.inline)
     .task {
       transcript = await store.transcript(for: item)
       loaded = true

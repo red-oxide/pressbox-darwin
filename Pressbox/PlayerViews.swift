@@ -54,7 +54,6 @@ struct MiniPlayer: View {
       .statusBanner()
       .sheet(isPresented: $showPlayer) {
         NowPlayingView()
-          .macSheetSize(width: 440, height: 640)
       }
     }
   }
@@ -147,7 +146,7 @@ struct NowPlayingView: View {
           NavigationStack {
             ChapterList(item: item, chapters: playback.chapters)
               .navigationTitle("Chapters")
-              .inlineTitle()
+              .navigationBarTitleDisplayMode(.inline)
               .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                   Button("Done") { showChapters = false }
@@ -155,7 +154,6 @@ struct NowPlayingView: View {
               }
           }
           .presentationDetents([.medium, .large])
-          .macSheetSize(width: 420, height: 480)
         }
       }
       .sheet(isPresented: $showTranscript) {
@@ -168,7 +166,6 @@ struct NowPlayingView: View {
                 }
               }
           }
-          .macSheetSize(width: 480, height: 600)
         }
       }
       .sheet(isPresented: $showUpNext) {
@@ -292,86 +289,33 @@ private struct Artwork: View {
   }
 }
 
-extension View {
-  /// A small title in the bar, on iPhone and iPad; Mac sheets have none.
-  @ViewBuilder func inlineTitle() -> some View {
-    #if os(iOS)
-      navigationBarTitleDisplayMode(.inline)
-    #else
-      self
-    #endif
+/// Video with the system's controls, full screen and picture in picture.
+struct VideoView: UIViewControllerRepresentable {
+  let player: AVPlayer
+
+  func makeUIViewController(context: Context) -> AVPlayerViewController {
+    let controller = AVPlayerViewController()
+    controller.player = player
+    controller.allowsPictureInPicturePlayback = true
+    controller.canStartPictureInPictureAutomaticallyFromInline = true
+    controller.updatesNowPlayingInfoCenter = false
+    return controller
   }
 
-  /// Sheets on Mac have no size of their own.
-  @ViewBuilder func macSheetSize(width: CGFloat, height: CGFloat) -> some View {
-    #if os(macOS)
-      frame(minWidth: width, idealWidth: width, minHeight: height, idealHeight: height)
-    #else
-      self
-    #endif
+  func updateUIViewController(_ controller: AVPlayerViewController, context: Context) {
+    // Setting it again, even to the same player, reattaches the video
+    // layer; doing that on every redraw could leave the video black.
+    if controller.player !== player { controller.player = player }
   }
 }
 
-#if os(macOS)
-  /// Video with the system's controls, full screen and picture in picture.
-  struct VideoView: NSViewRepresentable {
-    let player: AVPlayer
-
-    func makeNSView(context: Context) -> AVPlayerView {
-      let view = AVPlayerView()
-      view.player = player
-      view.controlsStyle = .inline
-      view.allowsPictureInPicturePlayback = true
-      view.updatesNowPlayingInfoCenter = false
-      return view
-    }
-
-    func updateNSView(_ view: AVPlayerView, context: Context) {
-      // Setting it again, even to the same player, reattaches the video
-      // layer; doing that on every redraw could leave the video black.
-      if view.player !== player { view.player = player }
-    }
+/// AirPlay and other outputs.
+private struct RoutePicker: UIViewRepresentable {
+  func makeUIView(context: Context) -> AVRoutePickerView {
+    let view = AVRoutePickerView()
+    view.prioritizesVideoDevices = false
+    return view
   }
 
-  /// AirPlay and other outputs.
-  private struct RoutePicker: NSViewRepresentable {
-    func makeNSView(context: Context) -> AVRoutePickerView {
-      let view = AVRoutePickerView()
-      view.isRoutePickerButtonBordered = false
-      return view
-    }
-
-    func updateNSView(_ view: AVRoutePickerView, context: Context) {}
-  }
-#else
-  /// Video with the system's controls, full screen and picture in picture.
-  struct VideoView: UIViewControllerRepresentable {
-    let player: AVPlayer
-
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-      let controller = AVPlayerViewController()
-      controller.player = player
-      controller.allowsPictureInPicturePlayback = true
-      controller.canStartPictureInPictureAutomaticallyFromInline = true
-      controller.updatesNowPlayingInfoCenter = false
-      return controller
-    }
-
-    func updateUIViewController(_ controller: AVPlayerViewController, context: Context) {
-      // Setting it again, even to the same player, reattaches the video
-      // layer; doing that on every redraw could leave the video black.
-      if controller.player !== player { controller.player = player }
-    }
-  }
-
-  /// AirPlay and other outputs.
-  private struct RoutePicker: UIViewRepresentable {
-    func makeUIView(context: Context) -> AVRoutePickerView {
-      let view = AVRoutePickerView()
-      view.prioritizesVideoDevices = false
-      return view
-    }
-
-    func updateUIView(_ view: AVRoutePickerView, context: Context) {}
-  }
-#endif
+  func updateUIView(_ view: AVRoutePickerView, context: Context) {}
+}

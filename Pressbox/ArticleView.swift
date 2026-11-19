@@ -27,9 +27,7 @@ struct ArticleView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .themedScreen()
-    #if os(iOS)
-      .navigationBarTitleDisplayMode(.inline)
-    #endif
+    .navigationBarTitleDisplayMode(.inline)
     .task(id: item.id) {
       full = nil
       full = await store.open(item)
@@ -60,7 +58,6 @@ struct ArticleView: View {
     .episodeSheets(item: current, chapters: $showChapters, transcript: $showTranscript)
     .sheet(isPresented: $showPlayer) {
       NowPlayingView()
-        .macSheetSize(width: 440, height: 640)
     }
   }
 
@@ -96,11 +93,7 @@ struct ArticleView: View {
     }
   }
 
-  #if os(macOS)
-    private static let openInBrowser = "Open in Browser"
-  #else
-    private static let openInBrowser = "Open in Safari"
-  #endif
+  private static let openInBrowser = "Open in Safari"
 
   private static func escape(_ s: String) -> String {
     s.replacingOccurrences(of: "&", with: "&amp;")
@@ -170,27 +163,20 @@ struct HTMLView {
   private func makeWebView(coordinator: Coordinator) -> WKWebView {
     let config = WKWebViewConfiguration()
     config.defaultWebpagePreferences.allowsContentJavaScript = false
-    #if os(iOS)
-      config.dataDetectorTypes = [.link]
-    #endif
+    config.dataDetectorTypes = [.link]
     let view = WKWebView(frame: .zero, configuration: config)
     view.navigationDelegate = coordinator
     // A transparent page, so the screen's background shows through.
-    #if os(macOS)
-      view.setValue(false, forKey: "drawsBackground")
-      view.underPageBackgroundColor = .clear
-    #else
-      view.isOpaque = false
-      view.backgroundColor = .clear
-      coordinator.offsetObservation = view.scrollView.observe(\.contentOffset) {
-        [weak coordinator] scrollView, _ in
-        MainActor.assumeIsolated {
-          // From the top of the content, under the navigation bar.
-          let y = scrollView.contentOffset.y + scrollView.adjustedContentInset.top
-          coordinator?.scrolled(to: Double(y))
-        }
+    view.isOpaque = false
+    view.backgroundColor = .clear
+    coordinator.offsetObservation = view.scrollView.observe(\.contentOffset) {
+      [weak coordinator] scrollView, _ in
+      MainActor.assumeIsolated {
+        // From the top of the content, under the navigation bar.
+        let y = scrollView.contentOffset.y + scrollView.adjustedContentInset.top
+        coordinator?.scrolled(to: Double(y))
       }
-    #endif
+    }
     return view
   }
 
@@ -209,35 +195,29 @@ struct HTMLView {
     var itemID: Int64?
     /// Between loading a page and scrolling it to where it was read to.
     var restoring = false
-    #if os(iOS)
-      var offsetObservation: NSKeyValueObservation?
-      private var saveTask: Task<Void, Never>?
-    #endif
+    var offsetObservation: NSKeyValueObservation?
+    private var saveTask: Task<Void, Never>?
 
     /// The reader scrolled: keep the position once the page settles.
     func scrolled(to y: Double) {
-      #if os(iOS)
-        guard !restoring, let id = itemID else { return }
-        saveTask?.cancel()
-        saveTask = Task {
-          try? await Task.sleep(for: .milliseconds(500))
-          guard !Task.isCancelled else { return }
-          ReadingPositions.set(y, for: id)
-        }
-      #endif
+      guard !restoring, let id = itemID else { return }
+      saveTask?.cancel()
+      saveTask = Task {
+        try? await Task.sleep(for: .milliseconds(500))
+        guard !Task.isCancelled else { return }
+        ReadingPositions.set(y, for: id)
+      }
     }
 
     /// Loaded: back to where the item was read to, if it was.
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-      #if os(iOS)
-        if let id = itemID, let y = ReadingPositions.offset(for: id) {
-          let scrollView = webView.scrollView
-          let inset = scrollView.adjustedContentInset
-          let bottom = scrollView.contentSize.height + inset.bottom - scrollView.bounds.height
-          let to = min(CGFloat(y) - inset.top, max(-inset.top, bottom))
-          scrollView.setContentOffset(CGPoint(x: 0, y: to), animated: false)
-        }
-      #endif
+      if let id = itemID, let y = ReadingPositions.offset(for: id) {
+        let scrollView = webView.scrollView
+        let inset = scrollView.adjustedContentInset
+        let bottom = scrollView.contentSize.height + inset.bottom - scrollView.bounds.height
+        let to = min(CGFloat(y) - inset.top, max(-inset.top, bottom))
+        scrollView.setContentOffset(CGPoint(x: 0, y: to), animated: false)
+      }
       restoring = false
     }
 
@@ -253,41 +233,24 @@ struct HTMLView {
       guard action.navigationType == .linkActivated, let url = action.request.url else {
         return .allow
       }
-      #if os(macOS)
-        NSWorkspace.shared.open(url)
-      #else
-        await UIApplication.shared.open(url)
-      #endif
+      await UIApplication.shared.open(url)
       return .cancel
     }
   }
 }
 
-#if os(macOS)
-  extension HTMLView: NSViewRepresentable {
-    func makeNSView(context: Context) -> WKWebView {
-      makeWebView(coordinator: context.coordinator)
-    }
-
-    func updateNSView(_ view: WKWebView, context: Context) {
-      update(view, coordinator: context.coordinator)
-    }
+extension HTMLView: UIViewRepresentable {
+  func makeUIView(context: Context) -> WKWebView {
+    makeWebView(coordinator: context.coordinator)
   }
-#else
-  extension HTMLView: UIViewRepresentable {
-    func makeUIView(context: Context) -> WKWebView {
-      makeWebView(coordinator: context.coordinator)
-    }
 
-    func updateUIView(_ view: WKWebView, context: Context) {
-      update(view, coordinator: context.coordinator)
-    }
+  func updateUIView(_ view: WKWebView, context: Context) {
+    update(view, coordinator: context.coordinator)
   }
-#endif
+}
 
 /// How far down each item was scrolled, so it reopens there: the most
-/// recent 200, on this device. iPhone and iPad only: on Mac the web view
-/// doesn't expose its scroll view, and article JavaScript is off.
+/// recent 200, on this device.
 @MainActor
 enum ReadingPositions {
   private struct Entry: Codable {

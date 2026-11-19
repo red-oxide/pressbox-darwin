@@ -4,9 +4,7 @@
 import Foundation
 import UserNotifications
 
-#if os(iOS)
-  import BackgroundTasks
-#endif
+import BackgroundTasks
 
 /// The unread badge, and background refresh (badge, widgets, downloads).
 extension Store {
@@ -41,27 +39,19 @@ extension Store {
     updateWidgets()
   }
 
-  #if os(macOS)
-    private static let allowBadgesMessage =
-      "Allow badges for pressbox in System Settings › Notifications."
-  #else
-    private static let allowBadgesMessage = "Allow badges for pressbox in the Settings app."
-  #endif
+  private static let allowBadgesMessage = "Allow badges for pressbox in the Settings app."
 
   /// Asks iOS to wake the app in a while to update the badge. iOS decides
-  /// when, based on how often the app is used. The Mac app has no background
-  /// refresh; it reloads on a timer while open instead (see `ContentView`).
+  /// when, based on how often the app is used.
   nonisolated static func scheduleBackgroundRefresh() {
-    #if os(iOS)
-      // For the badge and the widgets.
-      guard !(UserDefaults.standard.string(forKey: "server") ?? "").isEmpty else {
-        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: refreshTaskID)
-        return
-      }
-      let request = BGAppRefreshTaskRequest(identifier: refreshTaskID)
-      request.earliestBeginDate = Date().addingTimeInterval(30 * 60)
-      try? BGTaskScheduler.shared.submit(request)
-    #endif
+    // For the badge and the widgets.
+    guard !(UserDefaults.standard.string(forKey: "server") ?? "").isEmpty else {
+      BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: refreshTaskID)
+      return
+    }
+    let request = BGAppRefreshTaskRequest(identifier: refreshTaskID)
+    request.earliestBeginDate = Date().addingTimeInterval(30 * 60)
+    try? BGTaskScheduler.shared.submit(request)
   }
 
   /// The background refresh: fetch unread counts and set the badge.
