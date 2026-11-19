@@ -158,6 +158,11 @@ final class Store {
     shownFeeds.filter { $0.tags.contains(tag) }
   }
 
+  /// Feeds shown with no tag, under the tagged ones in the feed list.
+  var untaggedFeeds: [Feed] {
+    shownFeeds.filter { $0.tags.isEmpty }
+  }
+
   func unread(tagged tag: String) -> Int {
     feedsTagged(tag).reduce(0) { $0 + $1.unread(in: shows) }
   }

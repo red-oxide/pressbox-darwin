@@ -27,17 +27,21 @@ struct FeedListView: View {
             .buttonStyle(.plain)
           }
         }
-        if !store.tags.isEmpty {
-          section("Tags") {
-            ForEach(store.tags, id: \.self) { tag in
-              SourceTile(
-                title: tag, symbol: "tag", unread: store.unread(tagged: tag), source: .tag(tag))
-            }
+        // A section per tag, with every feed that has it (so a feed with
+        // two tags is in both), then the feeds with none.
+        if store.tags.isEmpty {
+          section("Feeds") {
+            feedTiles(store.shownFeeds)
           }
-        }
-        section("Feeds") {
-          ForEach(store.shownFeeds) { feed in
-            SourceTile(feed: feed, unread: feed.unread(in: store.shows))
+        } else {
+          ForEach(store.tags, id: \.self) { tag in
+            tagSection(tag)
+          }
+          let untagged = store.untaggedFeeds
+          if !untagged.isEmpty {
+            section("Other Feeds") {
+              feedTiles(untagged)
+            }
           }
         }
         // A list with no feeds at all: the tiles above stay, so a note here
@@ -99,6 +103,46 @@ extension FeedListView {
       LazyVGrid(columns: Tiles.sources, spacing: Tiles.spacing) {
         tiles()
       }
+    }
+  }
+
+  /// A tag's feeds under a header that opens the tag's items, as its tile
+  /// did: the name, its unread count and a chevron.
+  private func tagSection(_ tag: String) -> some View {
+    let unread = store.unread(tagged: tag)
+    return VStack(alignment: .leading, spacing: 8) {
+      Button {
+        store.source = .tag(tag)
+      } label: {
+        HStack(spacing: 6) {
+          Text(tag)
+            .font(.headline)
+          if unread > 0 {
+            Text("\(unread) unread")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+          }
+          Spacer(minLength: 0)
+          Image(systemName: "chevron.forward")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.tertiary)
+            .accessibilityHidden(true)
+        }
+        .frame(minHeight: 44)
+        .contentShape(.rect)
+      }
+      .buttonStyle(.plain)
+      .accessibilityAddTraits(.isHeader)
+      .accessibilityHint("Shows the items of every feed tagged \(tag)")
+      LazyVGrid(columns: Tiles.sources, spacing: Tiles.spacing) {
+        feedTiles(store.feedsTagged(tag))
+      }
+    }
+  }
+
+  private func feedTiles(_ feeds: [Feed]) -> some View {
+    ForEach(feeds) { feed in
+      SourceTile(feed: feed, unread: feed.unread(in: store.shows))
     }
   }
 

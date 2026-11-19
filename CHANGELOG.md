@@ -19,9 +19,11 @@ The first release: an iPhone app for a pressbox server. Needs iOS 27 and
 pressbox 26.0.0.
 
 - Feeds, item lists and an article reader (SwiftUI), with search and offline
-  reading. The feed list has a Tags section, one row per tag in the server's
-  config with its unread count, showing the items of every feed with that tag.
-  Item lists page by cursor, so they stay fast far down a long list.
+  reading. Item lists page by cursor, so they stay fast far down a long list.
+- The feed list is in sections by tag: one per tag in the server's config, with
+  every feed that has it (a feed with two tags is in both), then Other Feeds for
+  those with none. A section's header shows the tag's unread count and opens the
+  items of every feed with that tag.
 - Pairing with a short code, and approving other devices (for any user, as an
   admin).
 - The feed list and the item lists are grids of tiles: as many columns as fit,
