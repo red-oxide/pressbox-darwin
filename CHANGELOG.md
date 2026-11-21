@@ -13,10 +13,11 @@ starting at 0 (26.0.0, then 26.0.1 for a fix, 26.1.0, and 27.0.0 in January).
 The app is versioned on its own; it talks to pressbox servers through API v1
 (`/api/v1`).
 
-## [26.0.0] - Unreleased
+## [26.0.0] - 2026-11-21
 
 The first release: an iPhone app for a pressbox server. Needs iOS 27 and
-pressbox 26.0.0.
+pressbox 26.0.0. Available through TestFlight only for now, not yet on the App
+Store.
 
 - Feeds, item lists and an article reader (SwiftUI), with search and offline
   reading. Item lists page by cursor, so they stay fast far down a long list.
